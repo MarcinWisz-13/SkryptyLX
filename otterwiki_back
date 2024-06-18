@@ -1,0 +1,69 @@
+
+CUPS print server
+
+Dodatnie drukarki sudo lpadmin -p EPSON -E -v ipp://192.168.1.111/ipp/print -m everywhere
+
+Drukowanie: `lp nazwapliku -d EPSON
+
+
+Bonding
+
+Routing równoległy – bonding/teaming/LAG
+
+Routing równoległy jest to połączenie interfejsów w jeden logiczny interfejs, zwiększa przepustowość i zapewnia nadmiarowość.
+
+Tryby pracy:
+
+Tryb 0 balance-rr Równoważne obciążenie i odporność na błędy
+
+Tryb 1 active-backup Aktywna kopia zapasowa, tylko jeden interejs pozostaje aktywny drugi włączany jest w trakcie awarii.
+
+Tryb 2 balance-xor Transmisja na podstawie algotytmu xmit_hash_policy.
+
+Tryb 3 broadcast Wszystkie interfejsy aktywne
+
+Tryb 4 802.3ad Dynamiczna agregacja łaczy IEEE 802.3ad
+
+Tryb 5 balance-tlb Adaptacyjne równoważenie obciążenia transmisji: łączenie kanałów, które nie wymaga żadnej specjalnej obsługi przełącznika. Ruch wychodzący jest rozdzielany zgodnie z aktualnym obciążeniem
+
+Tryb 6 balance-alb Adaptacyjne równoważenie obciążenia: obejmuje balance-tlb plus równoważenie obciążenia odbieranego (rlb) dla ruchu IPV4 i nie wymaga żadnej specjalnej obsługi przełączników.
+
+Do konfiguracji potrzebny jest pakiet infenslave
+
+apt install infenslave
+
+Załadowanie modułu:
+
+modprobe bonding
+
+Konfiguracja LAG w /etc/netplan/net.yaml network: version: 2 renderer: networkd bonds: bond0: interfaces: [ens1f1, ens1f0] addresses: [192.168.1.4/24] gateway4: 192.168.1.1 parameters: mode: balance-rr nameservers: addresses: [1.1.1.1, 8.8.8.8] dhcp4: false optional: true ethernets: ens1f0: dhcp4: false optional: true ens1f1: dhcp4: false optional: true Zastosowanie zmian:
+
+netplan --debug apply
+
+Sprawdzenie statusu bonding:
+
+cat /proc/net/bonding/bond0
+
+Przydatne linki:
+
+Szczegółowe informacje odnośnie trybów pracy znajdziesz TUTAJ Przykłady netplan
+
+description https://www.howtoforge.com/nic-bonding-on-debian-lenny
+
+
+
+Proxmox
+
+problem z stale file handle przy wykonywaniu backupu na zasób SMB/CIFS
+
+Aby dodać opcję noserverino do wpisu w pliku /etc/fstab, powinieneś zaktualizować istniejącą linię dotyczącą montowania zasobu SMB/CIFS, dodając tę opcję do listy opcji montowania. Oto przykładowy wpis w /etc/fstab z opcją noserverino:
+
+//serwer/sdzielony_folder /ścieżka/do/zasobu cifs username=użytkownik,password=hasło,noserverino 0 0
+
+W tym przykładzie:
+
+//serwer/sdzielony_folder to ścieżka do zasobu sieciowego. /ścieżka/do/zasobu to lokalna ścieżka montowania na serwerze Proxmox. username=użytkownik i password=hasło to Twoje dane uwierzytelniające do zasobu SMB/CIFS. noserverino to dodana opcja, która może pomóc w rozwiązaniu problemu z “stale file handle”. Po dodaniu opcji noserverino, zapisz zmiany i zamontuj zasób ponownie, aby zastosować nową konfigurację. Możesz to zrobić za pomocą polecenia:
+
+mount -a
+
+Polecenie mount -a spowoduje zamontowanie wszystkich zasobów zdefiniowanych w /etc/fstab. Upewnij się, że nie ma błędów w pliku /etc/fstab przed wykonaniem tego polecenia, ponieważ błędy mogą spowodować problemy z montowaniem przy starcie systemu. **
