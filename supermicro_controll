@@ -1,0 +1,2 @@
+controlling IPMI:
+ipmitool -H 10.0.0.2 -U user -P 'password' <command>
